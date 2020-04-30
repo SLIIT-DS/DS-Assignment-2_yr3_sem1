@@ -4,7 +4,7 @@
   "description": "DS Assignment 02 - Firm alarm monitoring application backend REST API development using NodeJS and Express with MySQL database",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js"
+    
   },
   "author": "Jayagoda N.M.",
   "license": "ISC",
