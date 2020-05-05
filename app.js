@@ -1,9 +1,19 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 var mysql = require('mysql');
+var cors = require('cors');
 const app = express();
 
 app.use(bodyParser.json());
+app.use(cors());
+
+/**
+ *
+ * @author :
+ *     Jayagoda N.M.
+ *     IT17184304
+ *
+ */
 
 //Database connection to the MySQL database
 var connection = mysql.createConnection({
@@ -141,5 +151,23 @@ app.get('/sensorData/:floor_no/:room_no', async (req, res) => {
         res.send(rows);
     });
 });
+
+// Email service
+app.post('/emailService/:floor/:room', async(req, res) => {
+    const floorNumber = req.params.floor;
+    const roomNumber = req.params.room;
+
+    const queryString = "SELECT email FROM fire_alarm.sensors WHERE floor_no =" + floorNumber +  " AND room_no = " + roomNumber;
+
+    connection.query(queryString, function (err, rows) {
+        if(err){
+            console.log("Error : ", err);
+            res.send(err);
+            return;
+        }
+        res.json(rows);
+    });
+});
+
 
 app.listen(3000);
