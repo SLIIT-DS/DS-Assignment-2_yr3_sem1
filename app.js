@@ -72,6 +72,43 @@ app.post('/sensorRecord', async(req, res) => {
     });
 });
 
+//Update sensor record of the Database
+app.put('/sensorRecord', async(req, res) => {
+    const floorNumber = req.body.floor_no;
+    const roomNumber = req.body.room_no;
+    const smokeLevel = req.body.smoke_level;
+    const carbondioxideLevel = req.body.carbondioxide_level;
+    const sensorStatus = req.body.sensor_status;
+
+    var alertStatus = '';
+
+    if(sensorStatus !== 'OFFLINE'){
+        //Generating the alert_status record based on the smoke level and the carbondioxide levels, if the sensorStatus is 'ACTIVE'
+        if( smokeLevel > 5 || carbondioxideLevel > 5 ){
+            alertStatus = 'RED';
+        }else{
+            alertStatus = 'GREEN';
+        }
+    }
+
+    let queryString =  "UPDATE fire_alarm.sensors " +
+    "SET smoke_level = " + smokeLevel + ", " +
+        "carbondioxide_level = " + carbondioxideLevel + ", " +
+        "sensor_status = '" + sensorStatus + "' , " +
+        "alert_status = '" + alertStatus + "'  " +
+    "WHERE floor_no = " + floorNumber + " AND room_no = " + roomNumber + ";";
+
+    connection.query( queryString, function (err, rows) {
+        if(err){
+            console.error("Error : " + err);
+            res.send(err);
+            return;
+        }
+        res.json(rows);
+    });
+});
+
+
 //Get records by the sensorId
 app.get('/sensorData/:sensor_id', async (req, res) => {
     const sensor_id = req.params.sensor_id;
