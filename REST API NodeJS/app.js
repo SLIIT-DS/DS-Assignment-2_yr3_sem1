@@ -19,8 +19,8 @@ app.use(cors());
 var connection = mysql.createConnection({
     host : 'localhost',
     database : 'fire_alarm',
-    user : '<username>',
-    password : '<password>'
+    user : '< --username-- >',
+    password : '< --password-- >'
 });
 
 connection.connect(function(err){
