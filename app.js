@@ -84,11 +84,11 @@ app.post('/sensorRecord', async(req, res) => {
 
 //Update sensor record of the Database
 app.put('/sensorRecord', async(req, res) => {
-    const floorNumber = req.body.floor_no;
-    const roomNumber = req.body.room_no;
-    const smokeLevel = req.body.smoke_level;
-    const carbondioxideLevel = req.body.carbondioxide_level;
-    const sensorStatus = req.body.sensor_status;
+    const floor_no = req.body.floor_no;
+    const room_no = req.body.room_no;
+    const smoke_level = req.body.smoke_level;
+    const carbondioxide_level = req.body.carbondioxide_level;
+    const sensor_status = req.body.sensor_status;
 
     var alertStatus = '';
 
@@ -102,11 +102,11 @@ app.put('/sensorRecord', async(req, res) => {
     }
 
     let queryString =  "UPDATE fire_alarm.sensors " +
-    "SET smoke_level = " + smokeLevel + ", " +
-        "carbondioxide_level = " + carbondioxideLevel + ", " +
-        "sensor_status = '" + sensorStatus + "' , " +
+    "SET smoke_level = " + smoke_level + ", " +
+        "carbondioxide_level = " + carbondioxide_level + ", " +
+        "sensor_status = '" + sensor_status + "' , " +
         "alert_status = '" + alertStatus + "'  " +
-    "WHERE floor_no = " + floorNumber + " AND room_no = " + roomNumber + ";";
+    "WHERE floor_no = " + floor_no + " AND room_no = " + room_no + ";";
 
     connection.query( queryString, function (err, rows) {
         if(err){
@@ -154,10 +154,10 @@ app.get('/sensorData/:floor_no/:room_no', async (req, res) => {
 
 // Email service
 app.post('/emailService/:floor/:room', async(req, res) => {
-    const floorNumber = req.params.floor;
-    const roomNumber = req.params.room;
+    const floor_no = req.params.floor;
+    const room_no = req.params.room;
 
-    const queryString = "SELECT email FROM fire_alarm.sensors WHERE floor_no =" + floorNumber +  " AND room_no = " + roomNumber;
+    const queryString = "SELECT email FROM fire_alarm.sensors WHERE floor_no =" + floor_no +  " AND room_no = " + room_no;
 
     connection.query(queryString, function (err, rows) {
         if(err){
@@ -169,5 +169,17 @@ app.post('/emailService/:floor/:room', async(req, res) => {
     });
 });
 
+//delete sensor data
+app.delete('/sensorData/:sensor_id',(req,res) =>{
+    const sensor_id = req.params.sensor_id;
+    const  queryString = 'DELETE FROM fire_alarm.sensors where sensor_id = ' + sensor_id;
+    connection.query(queryString, function(err, rows){
+        if(err){
+            console.log("Error : ", err);
+            return;
+        }
+        res.send(rows);
+    });
+});
 
 app.listen(3000);
