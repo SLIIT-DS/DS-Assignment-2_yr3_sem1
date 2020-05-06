@@ -271,42 +271,48 @@ public class FireAlarmImpl extends UnicastRemoteObject implements FireAlarmInter
     public void sendMail(String receiver, String floor, String room) throws RemoteException, MessagingException {
         //To change body of generated methods, choose Tools | Templates.
         
-        String msg = "Our system detected the Room "+room+" in Floor "+floor+" has critical issue with firing. Please be carefual and follow the rules while our services fix it. Thank you";
-        String to = receiver;         
-        String host = "smtp.gmail.com";
-        String user = "firealarm.monitoring.system@gmail.com";
-        String pass = "firealarm123";
-       
+       try {
+            //To change body of generated methods, choose Tools | Templates.
 
-       //Get the session object  
-        Properties properties = new Properties();
-        properties.put("mail.smtp.host", host); 
-        properties.put("mail.smtp.port", "587");
-        properties.put("mail.smtp.starttls.enable", "true"); 
-        properties.put("mail.smtp.auth", "true");
-        
-        Session session = Session.getDefaultInstance(properties, new Authenticator() {
+            URL url = new URL ("http://localhost:25000/sendEmail");
+            HttpURLConnection con = (HttpURLConnection)url.openConnection();
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
+            con.setDoOutput(true);
+
+            JsonObject newSensor = new JsonObject();
+            newSensor.addProperty("room_no", receiver);
+            newSensor.addProperty("floor", floor);
+            newSensor.addProperty("room", room);
             
-            protected PasswordAuthentication getPasswordAuthentication(){
-                return new PasswordAuthentication(user, pass);
+            OutputStream os = con.getOutputStream();
+            os.write(newSensor.toString().getBytes());  
+            os.flush();
+            
+            if (con.getResponseCode() == 200) { 
+                
+                System.out.println("New Sensor Registered Successfuly.");
+                
+            }else if(con.getResponseCode() != 200){
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + con.getResponseCode());
+                
             }
-        });
 
-       //compose the message  
-        try{  
-           MimeMessage message = new MimeMessage(session);  
-           message.setFrom(new InternetAddress(user));  
-           message.addRecipient(Message.RecipientType.TO,new InternetAddress(to));  
-           message.setSubject("Fire Alarm Notify");  
-           message.setText(msg);  
-
-           // Send message  
-           Transport.send(message);  
-           System.out.println("message sent successfully....");  
-
-        }catch (MessagingException mex) {
-            mex.printStackTrace();
-        }
+            System.out.println("byte post : "+newSensor);
+            
+ 
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(FireAlarmImpl.class.getName()).log(Level.SEVERE, null, ex);
+ 
+            
+        } catch (IOException ex) {
+            Logger.getLogger(FireAlarmImpl.class.getName()).log(Level.SEVERE, null, ex);
+            
+        } 
+        
+    }
         
     }
 
